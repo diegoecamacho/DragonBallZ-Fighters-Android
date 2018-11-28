@@ -56,6 +56,17 @@ public class GameOverScreen extends BaseScreen {
 
         mainStage.addActor(UITable);
     }
+
+    @Override
+    public void Initialize() {
+
+    }
+
+    @Override
+    public void Update(float dt) {
+
+    }
+
     @Override
     public void resize(int width, int height) {
 

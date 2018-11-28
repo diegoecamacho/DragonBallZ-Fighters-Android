@@ -16,6 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *  Extend the Actor class to include graphics and collision detection.
  *  Actor class stores data such as position and rotation.
@@ -23,6 +26,12 @@ import com.badlogic.gdx.utils.Array;
 public class PlayerActor extends Actor {
     private TextureRegion textureRegion;
     private Rectangle rectangle;
+
+    private HashMap<String,Array<TextureRegion>> Animations = new HashMap<String, Array<TextureRegion>>();
+
+    private String animKey;
+    private boolean spriteFlipped = false;
+
 
     private Animation<TextureRegion> animation;
     private float elapsedTime;
@@ -35,6 +44,8 @@ public class PlayerActor extends Actor {
     private float deceleration;
 
     private Polygon boundaryPolygon;
+
+
 
     // stores size of game world for all actors
     static Rectangle worldBounds;
@@ -59,7 +70,6 @@ public class PlayerActor extends Actor {
     public PlayerActor(float x, float y, Stage s) {
 
         super();
-
         setPosition(x, y);
         s.addActor(this);
 
@@ -80,6 +90,13 @@ public class PlayerActor extends Actor {
         boundaryPolygon = null;
 
 
+    }
+
+    void FlipCurrentAnim(boolean flipX){
+        spriteFlipped = flipX;
+        for (TextureRegion region: Animations.get(animKey)) {
+            region.flip(flipX,false);
+        }
     }
 
     public void setTexture(Texture t) {
@@ -119,7 +136,22 @@ public class PlayerActor extends Actor {
 
     /* Animation methods */
 
-    public void setAnimation(Animation<TextureRegion> anim) {
+    public void setAnimation(String key, float frameDuration ,boolean loop) {
+
+        //Instantiate animation object while passing in array and duration of each frame
+        animKey = key;
+
+        Animation<TextureRegion> anim = new Animation<TextureRegion>(frameDuration, Animations.get(key));
+
+        //if loop is true, set LOOP ON
+        if (loop)
+            anim.setPlayMode(Animation.PlayMode.LOOP);
+
+            //else, no looping
+        else
+            anim.setPlayMode(Animation.PlayMode.NORMAL);
+
+        //if animation is null, set the animation to a default state
         animation = anim;
         TextureRegion tr = animation.getKeyFrame(0);
         float w = tr.getRegionWidth();
@@ -131,7 +163,7 @@ public class PlayerActor extends Actor {
 
     /* Animation methods for multiple images */
 
-    public Animation<TextureRegion> loadAnimationFromFiles(String[] fileNames, float frameDuration, boolean loop) {
+    public void loadAnimationFromFiles(String animKey, String[] fileNames, float frameDuration, boolean loop) {
         //Number of images to read
         int fileCount = fileNames.length;
 
@@ -143,39 +175,35 @@ public class PlayerActor extends Actor {
             String fileName = fileNames[n];
             //Create new texture with fileName at n
             Texture texture = new Texture(Gdx.files.internal(fileName));
+
             //Set Linear filter
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             //Add this textures to the Array
-            textureArray.add(new TextureRegion(texture));
+
+            TextureRegion text = new TextureRegion(texture);
+            //text.flip(false,false);
+            textureArray.add(text);
         }
 
-        //Instantiate animation object while passing in array and duration of each frame
-        Animation<TextureRegion> anim = new Animation<TextureRegion>(frameDuration, textureArray);
+        Animations.put(animKey, textureArray);
 
-        //if loop is true, set LOOP ON
-        if (loop)
-            anim.setPlayMode(Animation.PlayMode.LOOP);
-
-            //else, no looping
-        else
-            anim.setPlayMode(Animation.PlayMode.NORMAL);
-
-        //if animation is null, set the animation to a default state
         if (animation == null)
-            setAnimation(anim);
+            setAnimation(animKey,frameDuration,loop);
 
-        return anim;
     }
+
+
 
     /* Animation from sprite sheet */
 
-    public Animation<TextureRegion> loadAnimationFromSheet(String fileName,
+    public void loadAnimationFromSheet(String animKey,
+                                                           String fileName,
                                                            int rows,
                                                            int cols,
                                                            float frameDuration,
                                                            boolean loop) {
         //instantiate new Texture from file
-        Texture texture = new Texture(Gdx.files.internal(fileName), true);
+        Texture texture = new Texture( Gdx.files.internal(fileName), true);
 
         //set Texture filter to Linear
         /*
@@ -207,34 +235,24 @@ public class PlayerActor extends Actor {
             for (int c = 0; c < cols; c++)
                 textureArray.add(temp[r][c]);
 
-        //new animation object created from frame duration and texture array
-        Animation<TextureRegion> anim = new Animation<TextureRegion>(frameDuration, textureArray);
-
-        //if loop on LOOP animation
-        if (loop)
-            anim.setPlayMode(Animation.PlayMode.LOOP);
-
-        else
-            anim.setPlayMode(Animation.PlayMode.NORMAL);
+        Animations.put(animKey, textureArray);
 
         if (animation == null)
-            setAnimation(anim);
-
-        return anim;
+            setAnimation(animKey,frameDuration,loop);
     }
 
     /* Animation for single image */
 
-    public Animation<TextureRegion> loadTexture(String fileName) {
-        //set a new array of file names to a capacity of 1
-        String[] fileNames = new String[1];
+   public void loadTexture(String fileName) {
+       //set a new array of file names to a capacity of 1
+       String[] fileNames = new String[1];
 
-        //first image in array will be file name
-        fileNames[0] = fileName;
+       //first image in array will be file name
+       fileNames[0] = fileName;
 
-        //return anim object from first animation method that will load a single image
-        return loadAnimationFromFiles(fileNames, 1, true);
-    }
+       //return anim object from first animation method that will load a single image
+       loadAnimationFromFiles("Dialog",fileNames, 1, true);
+   }
 
     /* Check to see if animation is finished */
 
