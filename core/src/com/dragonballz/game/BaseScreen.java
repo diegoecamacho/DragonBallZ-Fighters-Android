@@ -15,18 +15,16 @@ import com.badlogic.gdx.utils.Align;
  */
 public abstract class BaseScreen implements  Screen, InputProcessor {
 
-    static int SCREENWIDTH = Gdx.graphics.getWidth();
-    static int SCREENHEIGHT = Gdx.graphics.getHeight();
+    static float SCREENWIDTH = Gdx.graphics.getWidth();
+    static float SCREENHEIGHT = Gdx.graphics.getHeight();
 
-
-
-   
     protected Container<Table> MenuBarContainer;
     protected Container<Table> TableContainer;
+    protected Container<Table> ControllerUIContainer;
 
     protected Table MenuBarTable;
     protected Table ScreenTable;
-
+    protected Table ControllerTable;
 
     protected Stage mainStage;
     protected Stage uiStage;
@@ -50,7 +48,19 @@ public abstract class BaseScreen implements  Screen, InputProcessor {
         MenuBarTable.align(Align.center | Align.left);
         //MenuBarTable.setBounds(0,0,MenuBarContainer.getWidth(),MenuBarContainer.getHeight());
         //Debug Statement
-        MenuBarTable.setDebug(false);
+        MenuBarTable.setDebug(true);
+
+        ControllerUIContainer = new Container<Table>();
+        ControllerUIContainer.setSize(SCREENWIDTH,SCREENHEIGHT/4);
+        ControllerUIContainer.setPosition(0,0);
+        ControllerUIContainer.fill();
+        //Debug
+        ControllerUIContainer.setDebug(true);
+
+        ControllerTable = new Table();
+        ControllerTable.align(Align.center);
+        //Debug
+        ControllerTable.setDebug(true);
 
         //Screen Layout
         TableContainer = new Container<Table>();
@@ -66,13 +76,15 @@ public abstract class BaseScreen implements  Screen, InputProcessor {
         //Debug Statement
         ScreenTable.setDebug(false);
 
+        ControllerUIContainer.setActor(ControllerTable);
         MenuBarContainer.setActor(MenuBarTable);
         TableContainer.setActor(ScreenTable);
 
         uiStage.addActor(MenuBarContainer);
+        uiStage.addActor(ControllerUIContainer);
         uiStage.addActor(TableContainer);
 
-        Initialize();
+        //Initialize();
     }
 
     public abstract void Initialize();

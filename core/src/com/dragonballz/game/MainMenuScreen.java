@@ -6,12 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Align;
-
-import javax.swing.text.html.Option;
 
 public class MainMenuScreen extends BaseScreen {
 
@@ -24,15 +20,13 @@ public class MainMenuScreen extends BaseScreen {
     TextButton OptionsButtom;
     TextButton ScoreButton;
 
+    MainMenuScreen(){
+        super();
+        Initialize();
+    }
 
     @Override
     public void Initialize() {
-        //UITable = new Table();
-        //UITable.columnDefaults(0).expand();
-        //UITable.columnDefaults(1).expand();
-        //UITable.columnDefaults(2).expand();
-        //UITable.setFillParent(true);
-        //UITable.setDebug(true);
 
         DBZBackground = new Image(new Texture(Gdx.files.internal("DBZLogoBackground.png")));
         DBZBackground.setSize(SCREENWIDTH,SCREENHEIGHT);
@@ -71,7 +65,7 @@ public class MainMenuScreen extends BaseScreen {
         PlayButton.addListener(new EventListener() {
             @Override
             public boolean handle(Event event) {
-                DBZEngine.GetInstance().LoadScene(new GameScene());
+                DBZEngine.GetInstance().LoadScene(new DialogScene());
                 return false;
             }
         });

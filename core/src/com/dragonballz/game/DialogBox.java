@@ -1,5 +1,6 @@
 package com.dragonballz.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -17,12 +18,16 @@ public class DialogBox extends PlayerActor {
 
     DialogBox(float x, float y, Stage s) {
         super(x, y, s);
-        loadTexture("sprites/ui/dialog-translucent.png");
+        loadTexture("UI/dialog-translucent.png");
+
+        skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
 
         dialogLabel = new Label(" ", skin, "default");
         dialogLabel.setWrap(true);
         dialogLabel.setPosition(padding, padding);
         this.setDialogSize(getWidth(), getHeight());
+
+        s.addActor(dialogLabel);
     }
 
     public void setDialogSize(float width, float height) {
