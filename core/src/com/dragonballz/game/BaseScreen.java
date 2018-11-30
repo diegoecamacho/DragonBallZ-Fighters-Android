@@ -58,7 +58,8 @@ public abstract class BaseScreen implements  Screen, InputProcessor {
         ControllerUIContainer.setDebug(true);
 
         ControllerTable = new Table();
-        ControllerTable.align(Align.center);
+
+
         //Debug
         ControllerTable.setDebug(true);
 

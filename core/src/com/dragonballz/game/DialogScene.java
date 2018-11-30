@@ -3,11 +3,9 @@ package com.dragonballz.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.dragonballz.game.Actors.ActorBase;
 
 public class DialogScene extends BaseScreen {
     final String[] GokuIdle = {"Goku Idle/GokuIdle_1.png","Goku Idle/GokuIdle_2.png","Goku Idle/GokuIdle_3.png","Goku Idle/GokuIdle_4.png","Goku Idle/GokuIdle_5.png","Goku Idle/GokuIdle_6.png","Goku Idle/GokuIdle_5.png","Goku Idle/GokuIdle_4.png","Goku Idle/GokuIdle_3.png","Goku Idle/GokuIdle_2.png","Goku Idle/GokuIdle_1.png"};
@@ -19,8 +17,8 @@ public class DialogScene extends BaseScreen {
 
     Texture BackgroundImage = new Texture(Gdx.files.internal("Background.jpg"));
 
-    PlayerActor GokuActor;
-    PlayerActor PicolloActor;
+    ActorBase GokuActor;
+    ActorBase PicolloActor;
 
     DialogBox dialogBox;
 
@@ -37,17 +35,16 @@ public class DialogScene extends BaseScreen {
 
 
 
-        GokuActor = new PlayerActor();
-        GokuActor.loadAnimationFromFiles("Idle",GokuIdle,0.1f,true);
+        GokuActor = new ActorBase();
+        GokuActor.loadAnimationFromFiles("Idle",GokuIdle,(1/10f),true);
         GokuActor.setPosition(SCREENWIDTH/2 - (SCREENWIDTH/3),SCREENHEIGHT/1.5f);
         GokuActor.setScale(5);
-        GokuActor.FlipCurrentAnim(true);
+        GokuActor.FlipCurrentAnim();
 
-        PicolloActor = new PlayerActor();
-        PicolloActor.loadAnimationFromFiles("Idle",PicolloIdle,0.1f,true);
+        PicolloActor = new ActorBase();
+        PicolloActor.loadAnimationFromFiles("Idle",PicolloIdle,(1/10f),true);
         PicolloActor.setPosition(SCREENWIDTH/2 + (SCREENWIDTH/3),SCREENHEIGHT/1.5f);
         PicolloActor.setScale(4);
-        PicolloActor.FlipCurrentAnim(false);
 
         dialogBox = new DialogBox(0,0,mainStage);
         dialogBox.setDialogSize(SCREENWIDTH,SCREENHEIGHT/3);

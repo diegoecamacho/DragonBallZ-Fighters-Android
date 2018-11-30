@@ -6,9 +6,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Align;
-import java.awt.TextField;
+import com.dragonballz.game.Actors.ActorBase;
 
-public class DialogBox extends PlayerActor {
+public class DialogBox extends ActorBase {
 
     private Label dialogLabel;
     private Label.LabelStyle labelStyle;

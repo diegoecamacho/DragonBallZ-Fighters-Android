@@ -1,4 +1,4 @@
-package com.dragonballz.game;
+package com.dragonballz.game.Actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -15,42 +15,41 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.dragonballz.game.AnimationStruct;
+import com.dragonballz.game.DBZEngine;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 /**
  *  Extend the Actor class to include graphics and collision detection.
  *  Actor class stores data such as position and rotation.
  */
-public class PlayerActor extends Actor {
+public class ActorBase extends Actor {
     private TextureRegion textureRegion;
     private Rectangle rectangle;
 
-    private float speed = 20;
+    protected float speed = 20;
 
-    private HashMap<String,Array<TextureRegion>> Animations = new HashMap<String, Array<TextureRegion>>();
+    private HashMap<String,AnimationStruct> Animations = new HashMap<String, AnimationStruct>();
 
-    private String animKey;
-    private boolean spriteFlipped = false;
+    private AnimationStruct CurrentAnim;
+    protected boolean spriteFlipped = false;
 
 
     private Animation<TextureRegion> animation;
     private float elapsedTime;
     private boolean animationPaused;
 
-    private Vector2 velocityVec;
-    private Vector2 accelerationVec;
-    private float acceleration;
-    private float maxSpeed;
-    private float deceleration;
-
     private Polygon boundaryPolygon;
 
     // stores size of game world for all actors
     static Rectangle worldBounds;
+    private String currAnimKey;
 
-    public PlayerActor() {
+    Vector2 movementDir;
+
+    public ActorBase() {
         super();
         textureRegion = new TextureRegion();
         rectangle = new Rectangle();
@@ -58,18 +57,12 @@ public class PlayerActor extends Actor {
         elapsedTime = 0;
         animationPaused = false;
 
-        velocityVec = new Vector2(0, 0);
-        accelerationVec = new Vector2(0, 0);
-        acceleration = 0;
-        maxSpeed = 1000;
-        deceleration = 0;
-
         setWorldBounds(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
         boundaryPolygon = null;
     }
 
-    public PlayerActor(float x, float y, Stage s) {
+    public ActorBase(float x, float y, Stage s) {
 
         super();
         setPosition(x, y);
@@ -83,33 +76,10 @@ public class PlayerActor extends Actor {
         animationPaused = false;
         boundaryPolygon = null;
 
-        velocityVec = new Vector2(0, 0);
-        accelerationVec = new Vector2(0, 0);
-        acceleration = 0;
-        maxSpeed = 1000;
-        deceleration = 0;
-
         setWorldBounds(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
         boundaryPolygon = null;
     }
-
-    public void Move(float x, float y){
-        if (x > 0){
-            FlipCurrentAnim(true);
-        }
-        else{
-            if (x < 0){
-                FlipCurrentAnim(false);
-            }
-        }
-
-        moveBy(x * speed, y * speed);
-    }
-
-
-
-
 
     public Rectangle getRectangle() {
         rectangle.setPosition(this.getX(), this.getY());
@@ -120,9 +90,14 @@ public class PlayerActor extends Actor {
     public void act(float dt) {
         super.act(dt);
 
-
+        ApplyGravity(dt);
+        boundToWorld();
         if (!animationPaused)
             elapsedTime += dt;
+    }
+
+    public void ResetElapsed(){
+        elapsedTime = 0;
     }
 
     public void draw(Batch batch, float parentAlpha) {
@@ -146,17 +121,24 @@ public class PlayerActor extends Actor {
         rectangle.setSize(t.getWidth(), t.getHeight());
     }
 
+
     /* Animation methods */
 
-    public void setAnimation(String key, float frameDuration ,boolean loop) {
+    public void setAnimation(String key) {
 
         //Instantiate animation object while passing in array and duration of each frame
-        animKey = key;
 
-        Animation<TextureRegion> anim = new Animation<TextureRegion>(frameDuration, Animations.get(key));
+        if(currAnimKey == key) return;
+        if (!Animations.containsKey(key)) return;
+
+        currAnimKey = key;
+        CurrentAnim = Animations.get(key);
+
+        Animation<TextureRegion> anim = new Animation<TextureRegion>(CurrentAnim.frameDuration, CurrentAnim.textureRegions);
+
 
         //if loop is true, set LOOP ON
-        if (loop)
+        if (CurrentAnim.loop)
             anim.setPlayMode(Animation.PlayMode.LOOP);
 
             //else, no looping
@@ -169,8 +151,11 @@ public class PlayerActor extends Actor {
         float w = tr.getRegionWidth();
         float h = tr.getRegionHeight();
 
+        setBoundaryPolygon(4);
+
         setSize(w, h);
         setOrigin(w / 2, h / 2);
+
     }
 
     /* Animation methods for multiple images */
@@ -197,10 +182,15 @@ public class PlayerActor extends Actor {
             textureArray.add(text);
         }
 
-        Animations.put(animKey, textureArray);
+        AnimationStruct animStruct = new AnimationStruct();
+        animStruct.textureRegions = textureArray;
+        animStruct.frameDuration = frameDuration;
+        animStruct.loop = loop;
+
+        Animations.put(animKey, animStruct);
 
         if (animation == null)
-            setAnimation(animKey,frameDuration,loop);
+            setAnimation(animKey);
 
     }
 
@@ -215,18 +205,13 @@ public class PlayerActor extends Actor {
        loadAnimationFromFiles("Dialog",fileNames, 1, true);
    }
 
-    void FlipCurrentAnim(boolean flipX){
-        if (flipX && !spriteFlipped){
-            for (TextureRegion region: Animations.get(animKey)) {
-                region.flip(true,false);
+    public void FlipCurrentAnim(){
+        Set<String> keys = Animations.keySet();
+        for (String key : keys) {
+            for (TextureRegion tex: Animations.get(key).textureRegions) {
+                tex.flip(true,false);
             }
         }
-        else if (!flipX && spriteFlipped){
-            for (TextureRegion region: Animations.get(animKey)) {
-                region.flip(true,false);
-            }
-        }
-        spriteFlipped = flipX;
     }
 
     public boolean isAnimationFinished() {
@@ -236,13 +221,6 @@ public class PlayerActor extends Actor {
     public void setAnimationPaused(boolean pause) {
         animationPaused = pause;
     }
-
-
-    /**
-     *  //PHYSICS METHODS
-     * @param width
-     * @param height
-     */
 
     /**
      *  //SET ACTOR BACK TO BEGINNING
@@ -316,7 +294,7 @@ public class PlayerActor extends Actor {
      * @param width
      * @param height
      */
-    public boolean overlaps(PlayerActor other) {
+    public boolean overlaps(ActorBase other) {
 
         Polygon poly1 = this.getBoundaryPolygon();
         Polygon poly2 = other.getBoundaryPolygon();
@@ -333,7 +311,7 @@ public class PlayerActor extends Actor {
      * @param width
      * @param height
      */
-    public Vector2 preventOverlap(PlayerActor other) {
+    public Vector2 preventOverlap(ActorBase other) {
 
         Polygon poly1 = this.getBoundaryPolygon();
         Polygon poly2 = other.getBoundaryPolygon();
@@ -363,7 +341,7 @@ public class PlayerActor extends Actor {
      * @param height
      */
 
-    public boolean isWithinDistance(float distance, PlayerActor other)
+    public boolean isWithinDistance(float distance, ActorBase other)
     {
         Polygon polygon1 = this.getBoundaryPolygon();
         float scaleX = (this.getWidth() + 2 * distance) / this.getWidth();
@@ -402,10 +380,15 @@ public class PlayerActor extends Actor {
             setX(0);
         if (getX() + getWidth() > worldBounds.width)
             setX(worldBounds.width - getWidth());
-        if (getY() < 0)
-            setY(0);
+        if (getY() < getWidth()* 2f)
+            setY(getWidth() * 2f);
         if (getY() + getHeight() > worldBounds.height)
             setY(worldBounds.height - getHeight());
+    }
+
+    void ApplyGravity(float dt){
+        Gdx.app.log("Punch", "Movement");
+        moveBy(0, DBZEngine.gravity);
     }
 
 
@@ -415,5 +398,17 @@ public class PlayerActor extends Actor {
 
     public void setSpeed(float speed) {
         this.speed = speed;
+    }
+
+    public Vector2 MovevementDir() {
+        return movementDir;
+    }
+
+    public void SetMovementDir(Vector2 movementDir) {
+        this.movementDir = movementDir;
+    }
+
+    public Vector2 getPosition() {
+        return new Vector2(getX(),getY());
     }
 }
