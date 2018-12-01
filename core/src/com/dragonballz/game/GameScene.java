@@ -1,10 +1,13 @@
 package com.dragonballz.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -19,30 +22,66 @@ public class GameScene extends BaseScreen {
     PlayerClass GokuPlayer;
     AIEnemy PiccoloAI;
 
+    ActorBase GokuHealth;
+    ActorBase PicolloHealth;
+
+    static Music BattleMusic;
+
 
     Touchpad touchpad;
     Button PunchButton;
     Button KickButton;
     float deltaX;
     float deltaY;
+    private Image DBZBackground;
 
     GameScene(){
         super();
         Initialize();
     }
 
+    public static void  GameOver(Actor actor){
+        actor.remove();
+        BattleMusic.pause();
+        DBZEngine.GetInstance().LoadScene(new MainMenuScreen());
+    }
+
     @Override
     public void Initialize() {
+
+        DBZBackground = new Image(new Texture(Gdx.files.internal("DBZLogoBackground.png")));
+        DBZBackground.setSize(SCREENWIDTH,SCREENHEIGHT);
+
         GokuPlayer = new PlayerClass();
 
-        GokuPlayer.setPosition(SCREENWIDTH/2,SCREENHEIGHT/2);
+        GokuPlayer.setPosition(SCREENWIDTH/2 - SCREENWIDTH/4,SCREENHEIGHT/2);
         GokuPlayer.setScale(4f);
         GokuPlayer.setDebug(true);
 
-        PiccoloAI = new AIEnemy(GokuPlayer);
-        PiccoloAI.setPosition(SCREENWIDTH/2 - SCREENWIDTH/4,SCREENHEIGHT/2);
+        GokuHealth = new ActorBase();
+        GokuHealth.loadTexture("GreenBar.png");
+        GokuHealth.setOrigin(GokuHealth.getX()/2,GokuHealth.getY()/2);
+        GokuHealth.setPosition(120,SCREENHEIGHT-120);
+        GokuHealth.setScale(50*GokuPlayer.GetHealth(),4f);
+
+        PiccoloAI = new AIEnemy(GokuPlayer, mainStage);
+        PiccoloAI.setPosition(SCREENWIDTH/2 + SCREENWIDTH/4,SCREENHEIGHT/2);
         PiccoloAI.setScale(4f);
         PiccoloAI.setDebug(true);
+
+        PicolloHealth = new ActorBase();
+        PicolloHealth.loadTexture("GreenBar.png");
+        PicolloHealth.setOrigin(PicolloHealth.getX()/2,PicolloHealth.getY()/2);
+        PicolloHealth.setPosition(SCREENWIDTH-110,SCREENHEIGHT-80);
+        PicolloHealth.rotateBy(180);
+        PicolloHealth.setScale(50*PiccoloAI.GetHealth(),4f);
+
+        GokuPlayer.SetFocus(PiccoloAI);
+
+        BattleMusic = Gdx.audio.newMusic(Gdx.files.internal("PiccoloBattle.mp3"));
+        BattleMusic.setLooping(true);
+        BattleMusic.setVolume(1.0f);
+        BattleMusic.play();
 
 
 
@@ -70,6 +109,11 @@ public class GameScene extends BaseScreen {
         ControllerTable.add(KickButton).padRight(SCREENWIDTH/12);
         ControllerTable.add(PunchButton);
 
+        mainStage.addActor(DBZBackground);
+
+        mainStage.addActor(GokuHealth);
+        mainStage.addActor(PicolloHealth);
+
         mainStage.addActor(GokuPlayer);
         mainStage.addActor(PiccoloAI);
     }
@@ -78,6 +122,8 @@ public class GameScene extends BaseScreen {
     @Override
     public void Update(float dt) {
         GokuPlayer.Move(deltaX, deltaY);
+        GokuHealth.setScale(50*GokuPlayer.GetHealth(),4f);
+        PicolloHealth.setScale(50*PiccoloAI.GetHealth(),4f);
     }
 
     @Override
@@ -98,7 +144,7 @@ public class GameScene extends BaseScreen {
         PunchButton.addListener(new EventListener() {
             @Override
             public boolean handle(Event event) {
-                Gdx.app.log("Punch", "Punncnajbfjkabsnfd");
+
                 GokuPlayer.Punch();
                 return false;
             }
@@ -107,7 +153,6 @@ public class GameScene extends BaseScreen {
         KickButton.addListener(new EventListener() {
             @Override
             public boolean handle(Event event) {
-                Gdx.app.log("Punch", "Punncnajbfjkabsnfd");
                 GokuPlayer.Kick();
                 return false;
             }

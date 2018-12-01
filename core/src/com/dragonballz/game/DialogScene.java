@@ -15,7 +15,7 @@ public class DialogScene extends BaseScreen {
 
     TextButton PauseButton;
 
-    Texture BackgroundImage = new Texture(Gdx.files.internal("Background.jpg"));
+    Texture BackgroundImage = new Texture(Gdx.files.internal("DBZLogoBackground.png"));
 
     ActorBase GokuActor;
     ActorBase PicolloActor;
@@ -23,7 +23,15 @@ public class DialogScene extends BaseScreen {
     DialogBox dialogBox;
 
     private int currentDialogIndex = 0;
-    String[] Dialog = {"1","2","3","4","5"};
+
+    String[] Dialog = {"Piccolo: What’s wrong, Goku? Why did you want to meet 500 metres above the battle ground and what’s with the fighting stance?",
+            "Goku: Don’t play dumb with me, Piccolo. Chi-Chi told me everything. I know about the affair! You were my friend! How could you sleep with my wife? \n",
+            "Piccolo: What? Chi-Chi’s not my type at all! Not enough antennas for my taste. Plus, I would never do that to you. Either she’s lying or …oh no… it can’t be…\n",
+            "Goku: What is it?",
+            "Piccolo: My evil twin, Diccolo. He must’ve returned. His whole life has been about destroying mine! He’s always been jealous of me.",
+            "Goku: An evil twin? Really? This is anime not a soap opera. Just admit that you’ve always been jealous of my hot wife and I might let you off easy. \n",
+            "Piccolo: I’m serious! It was Diccolo! And Chi-Chi’s not even that hot. ",
+            "Goku: That’s it. I'm going to kick you right in the dragon balls!"};
 
     DialogScene(){
         super();
@@ -50,8 +58,8 @@ public class DialogScene extends BaseScreen {
         dialogBox.setDialogSize(SCREENWIDTH,SCREENHEIGHT/3);
         dialogBox.setText(Dialog[currentDialogIndex]);
         dialogBox.alignCenter();
-        dialogBox.setFontScale(10);
-        dialogBox.setFontColor(Color.BLACK);
+        dialogBox.setFontScale(5);
+        dialogBox.setFontColor(Color.WHITE);
         dialogBox.setBackgroundColor(Color.GRAY);
 
 

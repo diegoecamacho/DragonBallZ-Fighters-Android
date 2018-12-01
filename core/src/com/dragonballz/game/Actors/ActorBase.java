@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.dragonballz.game.AnimationStruct;
 import com.dragonballz.game.DBZEngine;
+import com.dragonballz.game.GameScene;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -26,6 +27,8 @@ import java.util.Set;
  *  Actor class stores data such as position and rotation.
  */
 public class ActorBase extends Actor {
+
+    public float Health = 1;
     private TextureRegion textureRegion;
     private Rectangle rectangle;
 
@@ -86,11 +89,21 @@ public class ActorBase extends Actor {
         return rectangle;
     }
 
+    public float GetHealth(){
+        return Health;
+    }
+
+    public void TakeDamage(float damage){
+        Health -= damage;
+        if (Health <= 0){
+            GameScene.GameOver(this);
+        }
+    }
+
     //Stage will automatically call Actor class
     public void act(float dt) {
         super.act(dt);
 
-        ApplyGravity(dt);
         boundToWorld();
         if (!animationPaused)
             elapsedTime += dt;
@@ -127,9 +140,9 @@ public class ActorBase extends Actor {
     public void setAnimation(String key) {
 
         //Instantiate animation object while passing in array and duration of each frame
-
         if(currAnimKey == key) return;
         if (!Animations.containsKey(key)) return;
+
 
         currAnimKey = key;
         CurrentAnim = Animations.get(key);
@@ -151,7 +164,6 @@ public class ActorBase extends Actor {
         float w = tr.getRegionWidth();
         float h = tr.getRegionHeight();
 
-        setBoundaryPolygon(4);
 
         setSize(w, h);
         setOrigin(w / 2, h / 2);
@@ -202,7 +214,7 @@ public class ActorBase extends Actor {
        fileNames[0] = fileName;
 
        //return anim object from first animation method that will load a single image
-       loadAnimationFromFiles("Dialog",fileNames, 1, true);
+       loadAnimationFromFiles("Dialog" ,fileNames, 1, true);
    }
 
     public void FlipCurrentAnim(){
@@ -386,10 +398,7 @@ public class ActorBase extends Actor {
             setY(worldBounds.height - getHeight());
     }
 
-    void ApplyGravity(float dt){
-        Gdx.app.log("Punch", "Movement");
-        moveBy(0, DBZEngine.gravity);
-    }
+
 
 
     public float getSpeed() {
