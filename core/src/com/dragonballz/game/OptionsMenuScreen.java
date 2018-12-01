@@ -67,6 +67,15 @@ public class OptionsMenuScreen extends BaseScreen {
 
     }
 
+    @Override
+    public void Initialize() {
+
+    }
+
+    @Override
+    public void Update(float dt) {
+
+    }
 
     @Override
     public void resize(int width, int height) {

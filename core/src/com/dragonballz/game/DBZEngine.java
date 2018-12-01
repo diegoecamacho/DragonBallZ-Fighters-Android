@@ -12,6 +12,8 @@ public class DBZEngine extends Game {
 
 	BaseScreen activeScreen;
 
+	final public static float gravity = -15f;
+
 	DBZEngine(){
 		if (engine == null){
 			engine = this;

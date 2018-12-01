@@ -43,6 +43,16 @@ public class SplashScreen extends BaseScreen {
     }
 
     @Override
+    public void Initialize() {
+
+    }
+
+    @Override
+    public void Update(float dt) {
+
+    }
+
+    @Override
     public void render(float delta) {
         super.render(delta);
         timeElapsed += delta;

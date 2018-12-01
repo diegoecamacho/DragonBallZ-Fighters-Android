@@ -1,55 +1,74 @@
 package com.dragonballz.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Align;
 
 public class MainMenuScreen extends BaseScreen {
 
-    Table UITable;
+
+    //Table UITable;
     Skin SceneSkin;
+    Image DBZLogo;
+    Image DBZBackground;
     TextButton PlayButton;
     TextButton OptionsButtom;
     TextButton ScoreButton;
 
-
     MainMenuScreen(){
         super();
-        UITable = new Table();
-        UITable.columnDefaults(0).expand();
-        UITable.columnDefaults(1).expand();
-        UITable.columnDefaults(2).expand();
-        UITable.setFillParent(true);
-        UITable.setDebug(true);
+        Initialize();
+    }
 
-        SceneSkin = new Skin(Gdx.files.internal("default/skin/uiskin.json"));
+    @Override
+    public void Initialize() {
+
+        DBZBackground = new Image(new Texture(Gdx.files.internal("DBZLogoBackground.png")));
+        DBZBackground.setSize(SCREENWIDTH,SCREENHEIGHT);
+        DBZLogo = new Image(new Texture(Gdx.files.internal("DBZLogo.png")));
+
+        SceneSkin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
 
         PlayButton = new TextButton("Play", SceneSkin);
         PlayButton.setOrigin(Align.center);
         PlayButton.getLabel().setFontScale(4);
 
+        OptionsButtom = new TextButton("Options", SceneSkin);
+        OptionsButtom.setOrigin(Align.center);
+        OptionsButtom.setTransform(true);
+        OptionsButtom.setScale(2);
+
+        ScoreButton = new TextButton("Score", SceneSkin);
+        ScoreButton.setOrigin(Align.center);
+        ScoreButton.getLabel().setFontScale(4);
+
+        InitializeButtonListeners();
+
+        mainStage.addActor(DBZBackground);
+
+       MenuBarTable.add(OptionsButtom).size(OptionsButtom.getWidth(),OptionsButtom.getHeight()+ 30).padLeft(OptionsButtom.getWidth() * 1.5f);
+
+       ScreenTable.add(DBZLogo); // Title
+       ScreenTable.row().padTop(SCREENHEIGHT/22);
+       ScreenTable.add(PlayButton).width(PlayButton.getWidth() * 10);
+       ScreenTable.row().padTop(SCREENHEIGHT/12);
+       ScreenTable.add(ScoreButton).width(PlayButton.getWidth() * 10);
+    }
+
+    @Override
+    public void InitializeButtonListeners(){
         PlayButton.addListener(new EventListener() {
             @Override
             public boolean handle(Event event) {
-                DBZEngine.GetInstance().LoadScene(new GameOverScreen());
+                DBZEngine.GetInstance().LoadScene(new DialogScene());
                 return false;
             }
         });
-
-        OptionsButtom = new TextButton("Options", SceneSkin);
-        OptionsButtom.getLabel().setFontScale(2);
-        ScoreButton = new TextButton("Score", SceneSkin);
-
-
-
-        ScoreButton.getLabel().setFontScale(4);
-
-
 
         OptionsButtom.addListener(new EventListener() {
             @Override
@@ -66,22 +85,13 @@ public class MainMenuScreen extends BaseScreen {
                 return false;
             }
         });
-
-        UITable.add(OptionsButtom).height(Value.percentHeight(0.1F, UITable)).width(Value.percentHeight(0.1F, UITable)).left().padLeft(100);
-        UITable.row();
-        UITable.add().height(Value.percentWidth(0.2F, UITable)).maxSize(100,100); // Title
-        UITable.row();
-        UITable.add(PlayButton).width(Value.percentWidth(0.2F, UITable)).height(Value.percentWidth(0.05F, UITable));
-        UITable.row();
-        UITable.add(ScoreButton).width(Value.percentWidth(0.2F, UITable)).height(Value.percentWidth(0.05F, UITable));
-
-        mainStage.addActor(UITable);
     }
 
-    void SetUpButtonListeners(){
+
+    @Override
+    public void Update(float dt) {
 
     }
-
 
     @Override
     public void dispose() {
